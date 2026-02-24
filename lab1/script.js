@@ -1,17 +1,52 @@
 const products = [
     { 
         id: 1, 
-        name: '111', 
+        name: 'rüstung', 
         artist: 'shodnik',
-        price: 10000,
+        price: 17000,
         image: 'images/кар1.jpg'
     },
     { 
         id: 2, 
-        name: '222', 
+        name: 'schlangenbraut', 
         artist: 'shodnik',
-        price: 10000,
+        price: 15000,
         image: 'images/кар2.jpg'
+    },
+    { 
+        id: 3, 
+        name: 'einblick', 
+        artist: 'shodnik',
+        price: 7000,
+        image: 'images/кар7.jpg'
+    },
+    { 
+        id: 4, 
+        name: 'sehnsucht', 
+        artist: 'shodnik',
+        price: 13000,
+        image: 'images/кар8.jpg'
+    },
+    { 
+        id: 5, 
+        name: 'immer', 
+        artist: 'shodnik',
+        price: 9000,
+        image: 'images/кар10.jpg'
+    },
+    { 
+        id: 6, 
+        name: 'blutiger ', 
+        artist: 'shodnik',
+        price: 17000,
+        image: 'images/кар14.jpg'
+    },
+    { 
+        id: 7, 
+        name: '31.12', 
+        artist: 'shodnik',
+        price: 6000,
+        image: 'images/кар17.jpg'
     },
 ];
 
@@ -162,6 +197,48 @@ function renderCart() {
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     cartTotal.textContent = total.toLocaleString();
 }
+
+// модальное окно
+const modal = document.getElementById('modal');
+const modalClose = document.getElementById('modal-close');
+const orderForm = document.getElementById('order-form');
+
+// функции открытия/закрытия модального окна
+function openModal() {
+    modal.style.display = 'flex';
+}
+
+function closeModal() {
+    modal.style.display = 'none';
+    orderForm.reset(); // очистить поля формы при закрытии
+}
+
+// закрытие по клику на крестик
+modalClose.addEventListener('click', closeModal);
+
+// закрытие по клику вне модального окна (на фон)
+window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        closeModal();
+    }
+});
+
+// обработка отправки формы 
+orderForm.addEventListener('submit', (e) => {
+    e.preventDefault(); // предотвращаем перезагрузку страницы
+
+    alert('Заказ создан!');
+    closeModal();
+
+    // очистка корзины после заказа
+    cart = [];
+    saveCart();
+    renderCart();
+});
+
+// привязка открытия модалки к кнопке "Оформить заказ"
+// checkoutBtn уже объявлен ранее, просто добавляем обработчик
+checkoutBtn.addEventListener('click', openModal);
 
 // инициализация
 loadCart();   

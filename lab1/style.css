@@ -92,9 +92,10 @@ h2 {
 
 .product-card img {
     width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-bottom: 2px solid #c79a6b;
+    aspect-ratio: 4 / 3;
+    object-fit: contain;
+    background-color: #faf3e8;
+    border-bottom: 2px solid #f1dbc2;
 }
 
 .product-card h3 {
@@ -226,3 +227,69 @@ h2 {
     cursor: not-allowed;
 }
 
+/* модальное окно */
+.modal {
+    display: none; /* скрыто по умолчанию */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(74, 44, 42, 0.7);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal__content {
+    background: #fff6eb;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    border: 2px solid #c79a6b;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.modal__close {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #8b4513;
+    line-height: 1;
+}
+
+.modal__close:hover {
+    color: #5a2e0e;
+}
+
+/* стили для формы внутри модального окна */
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+    color: #2c1810;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #dbb894;
+    border-radius: 4px;
+    font-size: 1rem;
+    background: #fef9f2;
+    font-family: 'Georgia', serif;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #8b4513;
+    box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
+}
