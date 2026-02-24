@@ -4,18 +4,18 @@ const products = [
         name: '111', 
         artist: 'shodnik',
         price: 10000,
-        image: 'images\кар1.jpg'
+        image: 'images/кар1.jpg'
     },
     { 
         id: 2, 
         name: '222', 
         artist: 'shodnik',
         price: 10000,
-        image: 'images\кар2.jpg'
+        image: 'images/кар2.jpg'
     },
 ];
 
-// состояние корзины (без localStorage)
+// состояние корзины
 let cart = [];
 
 // DOM элементы
@@ -24,6 +24,25 @@ const cartItems = document.getElementById('cart-items');
 const cartTotal = document.getElementById('cart-total');
 const checkoutBtn = document.getElementById('checkout-btn');
 
+// загрузка корзины из localStorage
+function loadCart() {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+        try {
+            cart = JSON.parse(savedCart);
+        } catch (e) {
+            console.error('Ошибка загрузки корзины', e);
+            cart = [];
+        }
+    } else {
+        cart = [];
+    }
+}
+
+// сохранение корзины в localStorage
+function saveCart() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
 
 // добавление товара в корзину
 function addToCart(productId) {
@@ -43,6 +62,7 @@ function addToCart(productId) {
         });
     }
 
+    saveCart();
     renderCart();
 }
 
@@ -56,6 +76,7 @@ function updateQuantity(productId, delta) {
         removeFromCart(productId);
     } else {
         item.quantity = newQuantity;
+        saveCart();
         renderCart();
     }
 }
@@ -63,8 +84,10 @@ function updateQuantity(productId, delta) {
 // удаление товара из корзины
 function removeFromCart(productId) {
     cart = cart.filter(item => item.id !== productId);
+    saveCart();
     renderCart();
 }
+
 
 // отрисовка каталога товаров
 function renderProducts() {
@@ -83,7 +106,7 @@ function renderProducts() {
 
     productsGrid.innerHTML = html;
 
-    //навешиваем обработчики на кнопки "В корзину"
+    // навешиваем обработчики на кнопки "В корзину"
     document.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const productId = parseInt(e.target.dataset.id);
@@ -135,11 +158,12 @@ function renderCart() {
         removeBtn.addEventListener('click', () => removeFromCart(productId));
     });
 
-    // Подсчёт и отображение общей суммы
+    // подсчёт и отображение общей суммы
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     cartTotal.textContent = total.toLocaleString();
 }
 
-// инициализация при загрузке страницы
+// инициализация
+loadCart();   
 renderProducts();
 renderCart();
