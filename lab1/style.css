@@ -332,3 +332,94 @@ h2 {
     background-color: rgba(255, 255, 255, 0.1);
     text-decoration: none;
 }
+
+/* АДАПТИВНОСТЬ */
+
+/* планшеты (от 481px до 768px) */
+@media (max-width: 768px) {
+    .main {
+        flex-direction: column; /* каталог и корзина друг под другом */
+    }
+
+    .cart {
+        width: 100%; /* корзина на всю ширину */
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* чуть меньше карточки */
+        gap: 15px;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+    }
+}
+
+/* телефоны (до 480px) */
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.8rem;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr; /* одна карточка в ряд */
+        gap: 20px;
+    }
+
+    .product-card img {
+        height: 200px; /* чуть выше для лучшего вида */
+    }
+
+    .cart-item {
+        flex-wrap: wrap; /* перенос элементов в корзине */
+    }
+
+    .cart-item-info {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .cart-item-controls {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .footer__content {
+        flex-direction: column; /* текст и ссылка друг под другом */
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .footer__telegram-link {
+        align-self: center;
+    }
+
+    .modal__content {
+        padding: 1.5rem;
+    }
+
+    .modal__close {
+        top: 0.8rem;
+        right: 1rem;
+        font-size: 1.8rem;
+    }
+}
+
+/* до 360px */
+@media (max-width: 360px) {
+    .product-card img {
+        height: 160px;
+    }
+
+    .product-card h3 {
+        font-size: 1.1rem;
+        margin: 10px 10px 5px;
+    }
+
+    .product-card .artist,
+    .product-card .price,
+    .product-card .btn {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+}
