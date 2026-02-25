@@ -126,7 +126,27 @@ h1 {
     will-change: left, top;
 }
 
-/* цвета для разных значений (пока только 2 и 4) */
+/* анимации */
+.tile.new-tile {
+    animation: appear 0.2s ease-in-out;
+}
+
+.tile.merged {
+    animation: merge 0.2s ease-in-out;
+}
+
+@keyframes appear {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+@keyframes merge {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* цвета для разных значений  */
 .tile[data-value="2"] { background: #eee4da; color: #776e65; }
 .tile[data-value="4"] { background: #ede0c8; color: #776e65; }
 .tile[data-value="8"] { background: #f2b179; color: white; }

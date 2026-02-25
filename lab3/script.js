@@ -1,7 +1,7 @@
-// состояние
 let board = [];
+let prevBoard = []; // для сравнения при анимациях
 let score = 0;
-let history = []; // для undo (пока не используется)
+let history = [];
 let gameOver = false;
 
 const boardSize = 4;
@@ -16,7 +16,30 @@ const leaderboardModal = document.getElementById('leaderboard-modal');
 const leaderboardBody = document.getElementById('leaderboard-body');
 const mobileControls = document.getElementById('mobile-controls');
 
-// LocalStorage для лидерборда
+// LocalStorage
+function saveGame() {
+    const state = {
+        board,
+        score,
+        history
+    };
+    localStorage.setItem('game2048', JSON.stringify(state));
+}
+
+function loadGame() {
+    const saved = localStorage.getItem('game2048');
+    if (saved) {
+        const state = JSON.parse(saved);
+        board = state.board;
+        score = state.score;
+        history = state.history || [];
+        prevBoard = board.map(row => [...row]);
+        renderBoard();
+    } else {
+        startNewGame();
+    }
+}
+
 function loadLeaderboard() {
     const saved = localStorage.getItem('leaderboard2048');
     return saved ? JSON.parse(saved) : [];
@@ -35,7 +58,9 @@ function startNewGame() {
     addRandomTile();
     addRandomTile();
     if (Math.random() < 0.5) addRandomTile();
+    prevBoard = board.map(row => [...row]);
     renderBoard();
+    saveGame();
     hideGameOverModal();
 }
 
@@ -48,25 +73,27 @@ function addRandomTile() {
     }
     if (empty.length === 0) return false;
     const { r, c } = empty[Math.floor(Math.random() * empty.length)];
-    board[r][c] = Math.random() < 0.9 ? 2 : 4; // 90% - 2, 10% - 4
+    board[r][c] = Math.random() < 0.9 ? 2 : 4;
     return true;
 }
 
 function move(direction) {
     if (gameOver) return false;
 
-    // сохраняем состояние для undo (пока не используем, но сохраняем)
+    // сохраняем состояние для undo
     history.push({
         board: board.map(row => [...row]),
         score
     });
+    if (history.length > 10) history.shift();
+
+    // сохраняем предыдущее состояние для анимаций
+    prevBoard = board.map(row => [...row]);
 
     let moved = false;
     let addedScore = 0;
 
-    // вспомогательная функция обработки линии (массива из 4 элементов)
     function processLine(line) {
-        // убираем нули
         const filtered = line.filter(v => v !== 0);
         const newLine = [];
         let i = 0;
@@ -80,12 +107,10 @@ function move(direction) {
                 i++;
             }
         }
-        // дополняем нулями до размера 4
         while (newLine.length < boardSize) newLine.push(0);
         return newLine;
     }
 
-    // обработка каждого направления
     if (direction === 'left') {
         for (let r = 0; r < boardSize; r++) {
             const original = board[r].slice();
@@ -133,12 +158,11 @@ function move(direction) {
 
     if (moved) {
         score += addedScore;
-        addRandomTile(); // добавляем одну плитку
-        // с вероятностью 50% добавляем вторую
+        addRandomTile();
         if (Math.random() < 0.5) addRandomTile();
         renderBoard();
+        saveGame();
 
-        // Проверяем, не закончилась ли игра
         if (isGameOver()) {
             gameOver = true;
             showGameOverModal();
@@ -148,6 +172,17 @@ function move(direction) {
         history.pop();
     }
     return moved;
+}
+
+function undo() {
+    if (gameOver) return;
+    if (history.length === 0) return;
+    const prev = history.pop();
+    board = prev.board.map(row => [...row]);
+    score = prev.score;
+    prevBoard = board.map(row => [...row]); // сбрасываем предыдущее для анимаций
+    renderBoard();
+    saveGame();
 }
 
 function isGameOver() {
@@ -173,27 +208,44 @@ function isGameOver() {
 }
 
 function renderBoard() {
-    // очищаем контейнер плиток
     tileContainer.innerHTML = '';
 
-    // Вычисляем размер ячейки с учётом отступов
     const cellSize = tileContainer.clientWidth / boardSize;
-    const gap = 15; // должно совпадать со значением в CSS
+    const gap = 15;
 
     for (let r = 0; r < boardSize; r++) {
         for (let c = 0; c < boardSize; c++) {
             const value = board[r][c];
             if (value !== 0) {
-                createTile(r, c, value);
+                // определяем, является ли плитка новой или слитой
+                let isNew = false;
+                let isMerged = false;
+
+                // если в предыдущем состоянии на этом месте было 0, то плитка новая
+                if (prevBoard[r] && prevBoard[r][c] === 0) {
+                    isNew = true;
+                }
+  
+                if (!isNew && prevBoard[r] && prevBoard[r][c] !== 0 && prevBoard[r][c] !== value) {
+                    // значение изменилось, вероятно, слияние
+                    isMerged = true;
+                }
+
+                createTile(r, c, value, isNew, isMerged);
             }
         }
     }
     scoreElement.textContent = score;
+
+    // обновляем prevBoard для следующего хода
+    prevBoard = board.map(row => [...row]);
 }
 
-function createTile(row, col, value) {
+function createTile(row, col, value, isNew = false, isMerged = false) {
     const tile = document.createElement('div');
     tile.className = 'tile';
+    if (isNew) tile.classList.add('new-tile');
+    if (isMerged) tile.classList.add('merged');
     tile.setAttribute('data-value', value);
     tile.textContent = value;
 
@@ -208,6 +260,11 @@ function createTile(row, col, value) {
     tile.style.height = (cellSize - gap) + 'px';
 
     tileContainer.appendChild(tile);
+
+    // убираем классы анимации через 200ms, чтобы они не оставались
+    setTimeout(() => {
+        tile.classList.remove('new-tile', 'merged');
+    }, 200);
 }
 
 // модальные окна
@@ -217,7 +274,7 @@ function showGameOverModal() {
     nameInputGroup.style.display = 'flex';
     playerNameInput.value = '';
     gameOverModal.style.display = 'flex';
-    mobileControls.style.display = 'none'; // скрываем мобильные кнопки
+    mobileControls.style.display = 'none';
 }
 
 function hideGameOverModal() {
@@ -242,7 +299,6 @@ function hideLeaderboardModal() {
 
 function updateLeaderboardTable() {
     const leaderboard = loadLeaderboard();
-    // сортируем по убыванию счёта и берём топ-10
     const top10 = leaderboard.sort((a, b) => b.score - a.score).slice(0, 10);
     leaderboardBody.innerHTML = '';
     top10.forEach(entry => {
@@ -274,7 +330,6 @@ function saveScore() {
     });
     saveLeaderboard(leaderboard);
 
-    // меняем сообщение и скрываем инпут
     nameInputGroup.style.display = 'none';
     gameOverMessage.textContent = 'Ваш рекорд сохранен!';
 }
@@ -290,7 +345,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// кнопки управления (мобильные)
 document.querySelectorAll('.move-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         if (gameOver) return;
@@ -299,43 +353,35 @@ document.querySelectorAll('.move-btn').forEach(btn => {
     });
 });
 
-// кнопка "Новая игра"
 document.getElementById('new-game').addEventListener('click', () => {
     startNewGame();
 });
 
-// кнопка "Отмена" пока не работает
 document.getElementById('undo').addEventListener('click', () => {
-    alert('Отмена пока не реализована');
+    undo();
 });
 
-// кнопка "Лидеры"
 document.getElementById('show-leaderboard').addEventListener('click', () => {
     showLeaderboardModal();
 });
 
-// закрытие модалки лидеров
 document.getElementById('close-leaderboard').addEventListener('click', () => {
     hideLeaderboardModal();
 });
 
-// кнопка "Начать заново" в модалке окончания
 document.getElementById('restart-from-modal').addEventListener('click', () => {
     startNewGame();
     hideGameOverModal();
 });
 
-// кнопка "Сохранить" в модалке окончания
 document.getElementById('save-score').addEventListener('click', () => {
     saveScore();
 });
 
-// кнопка "Закрыть" в модалке окончания
 document.getElementById('close-modal').addEventListener('click', () => {
     hideGameOverModal();
 });
 
-// закрытие модалок по клику на фон
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
@@ -345,7 +391,6 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
     });
 });
 
-// при изменении размера окна перерисовываем плитки и корректируем видимость мобильных кнопок
 window.addEventListener('resize', () => {
     renderBoard();
     if (window.innerWidth > 480) {
@@ -359,5 +404,4 @@ window.addEventListener('resize', () => {
     }
 });
 
-// запуск игры
-startNewGame();
+loadGame();
