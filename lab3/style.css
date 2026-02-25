@@ -112,9 +112,23 @@ h1 {
 }
 
 /* стили для плиток (потом) */
-/* .tile {
+.tile {
+    position: absolute;
+    background: #eee4da;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    font-weight: bold;
+    color: #776e65;
+    transition: left 0.15s ease-in-out, top 0.15s ease-in-out; /* позже добавить анимацию появления */
+    will-change: left, top;
+}
 
-} */
+/* цвета для разных значений (пока только 2 и 4) */
+.tile[data-value="2"] { background: #eee4da; color: #776e65; }
+.tile[data-value="4"] { background: #ede0c8; color: #776e65; }
 
 /* мобильные кнопки */
 .mobile-controls {
