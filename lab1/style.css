@@ -333,6 +333,17 @@ h2 {
     text-decoration: none;
 }
 
+/* стили для кнопки, когда товар уже в корзине */
+.btn.in-cart {
+    background: #5a2e0e;
+    border: 1px solid #c79a6b;
+}
+
+.btn.in-cart:hover {
+    background: #4f280c;
+    opacity: 0.9;
+}
+
 /* АДАПТИВНОСТЬ */
 
 /* планшеты (от 481px до 768px) */

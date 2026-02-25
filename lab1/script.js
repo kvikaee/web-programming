@@ -4,49 +4,49 @@ const products = [
         name: 'rüstung', 
         artist: 'shodnik',
         price: 17000,
-        image: 'images/кар1.jpg'
+        image: 'images/pic1.jpg'
     },
     { 
         id: 2, 
         name: 'schlangenbraut', 
         artist: 'shodnik',
         price: 15000,
-        image: 'images/кар2.jpg'
+        image: 'images/pic2.jpg'
     },
     { 
         id: 3, 
         name: 'einblick', 
         artist: 'shodnik',
         price: 7000,
-        image: 'images/кар7.jpg'
+        image: 'images/pic7.jpg'
     },
     { 
         id: 4, 
         name: 'sehnsucht', 
         artist: 'shodnik',
         price: 13000,
-        image: 'images/кар8.jpg'
+        image: 'images/pic8.jpg'
     },
     { 
         id: 5, 
         name: 'immer', 
         artist: 'shodnik',
         price: 9000,
-        image: 'images/кар10.jpg'
+        image: 'images/pic10.jpg'
     },
     { 
         id: 6, 
         name: 'blutiger ', 
         artist: 'shodnik',
         price: 17000,
-        image: 'images/кар14.jpg'
+        image: 'images/pic14.jpg'
     },
     { 
         id: 7, 
         name: '31.12', 
         artist: 'shodnik',
         price: 6000,
-        image: 'images/кар17.jpg'
+        image: 'images/pic17.jpg'
     },
 ];
 
