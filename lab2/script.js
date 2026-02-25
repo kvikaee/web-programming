@@ -1,13 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('app');
 
-    // состояние приложения
-    let tasks = []; // массив задач
+    let tasks = [];
+    let dragSourceId = null; // для drag-and-drop
 
-    // DOM-элементы
     let tasksContainer;
 
-    // вспомогательные функции
     function saveTasks() {
         localStorage.setItem('tasks', JSON.stringify(tasks));
     }
@@ -72,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.type = 'text';
         searchInput.placeholder = 'Поиск по названию...';
         controls.appendChild(searchInput);
-
         
         const sortButton = document.createElement('button');
         sortButton.textContent = 'Сортировать по дате (возр.)';
@@ -127,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const item = document.createElement('div');
         item.className = `task-item ${task.completed ? 'completed' : ''}`;
         item.dataset.id = task.id;
+        item.draggable = true; // разрешаем перетаскивание
 
         // чекбокс выполнения
         const checkbox = document.createElement('input');
@@ -173,6 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
         item.appendChild(infoDiv);
         item.appendChild(actionsDiv);
 
+        // Drag & Drop обработчики
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('drop', handleDrop);
+        item.addEventListener('dragend', handleDragEnd);
+
         return item;
     }
 
@@ -206,7 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         editForm.appendChild(saveBtn);
         editForm.appendChild(cancelBtn);
 
-        // заменяем содержимое taskElement на форму
         taskElement.innerHTML = '';
         taskElement.appendChild(editForm);
 
@@ -228,6 +231,42 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelBtn.addEventListener('click', () => {
             renderTasks();
         });
+    }
+
+    // Drag & Drop функции
+    function handleDragStart(e) {
+        dragSourceId = e.target.closest('.task-item').dataset.id;
+        e.dataTransfer.setData('text/plain', dragSourceId);
+        e.target.style.opacity = '0.5';
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const target = e.target.closest('.task-item');
+        if (!target) return;
+
+        const targetId = target.dataset.id;
+        if (dragSourceId === targetId) return;
+
+        const sourceIndex = tasks.findIndex(t => t.id == dragSourceId);
+        const targetIndex = tasks.findIndex(t => t.id == targetId);
+
+        if (sourceIndex !== -1 && targetIndex !== -1) {
+            const [movedTask] = tasks.splice(sourceIndex, 1);
+            tasks.splice(targetIndex, 0, movedTask);
+            saveTasks();
+            renderTasks();
+        }
+    }
+
+    function handleDragEnd(e) {
+        e.target.style.opacity = '';
+        dragSourceId = null;
     }
 
     // инициализация
