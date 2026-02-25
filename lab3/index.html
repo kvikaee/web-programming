@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2048</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>2048</h1>
+            <div class="score-container">
+                <div class="score-title">Счёт</div>
+                <div id="score" class="score">0</div>
+            </div>
+        </div>
+        <div class="controls">
+            <button id="new-game" class="control-btn">Новая</button>
+            <button id="undo" class="control-btn">Отмена</button>
+            <button id="show-leaderboard" class="control-btn">Лидеры</button>
+        </div>
+        <div class="game-board" id="game-board">
+            <!-- фоновая сетка -->
+            <div class="grid-container" id="grid-container">
+                <div class="grid-row">
+                    <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+                </div>
+            </div>
+            <!-- плитки пока отсутствуют -->
+            <div class="tile-container" id="tile-container"></div>
+        </div>
+        <!-- виртуальные кнопки для мобильных -->
+        <div class="mobile-controls" id="mobile-controls">
+            <button class="move-btn" data-direction="up">⬆️</button>
+            <div class="move-row">
+                <button class="move-btn" data-direction="left">⬅️</button>
+                <button class="move-btn" data-direction="down">⬇️</button>
+                <button class="move-btn" data-direction="right">➡️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- модальное окно окончания игры -->
+    <div class="modal-overlay" id="game-over-modal">
+        <div class="modal">
+            <h2>Игра окончена!</h2>
+            <p id="game-over-message">Ваш счёт: <span id="final-score"></span></p>
+            <div class="input-group" id="name-input-group">
+                <input type="text" id="player-name" placeholder="Введите имя" maxlength="20">
+                <button id="save-score" class="modal-btn">Сохранить</button>
+            </div>
+            <div class="modal-actions">
+                <button id="restart-from-modal" class="modal-btn">Начать заново</button>
+                <button id="close-modal" class="modal-btn">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- модальное окно таблицы лидеров -->
+    <div class="modal-overlay" id="leaderboard-modal">
+        <div class="modal leaderboard-modal">
+            <h2>Таблица лидеров</h2>
+            <table id="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Имя</th>
+                        <th>Счёт</th>
+                        <th>Дата</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+            <button id="close-leaderboard" class="modal-btn">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

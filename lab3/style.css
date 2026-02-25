@@ -1,0 +1,279 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #faf8ef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 16px;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 48px;
+    color: #776e65;
+    font-weight: bold;
+}
+
+.score-container {
+    background: #bbada0;
+    padding: 10px 20px;
+    border-radius: 6px;
+    color: white;
+    text-align: center;
+}
+
+.score-title {
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.score {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.control-btn {
+    background: #8f7a66;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex: 1;
+    min-width: 80px;
+}
+
+.control-btn:hover {
+    background: #9f8b77;
+}
+
+.game-board {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #bbada0;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.grid-container {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.grid-cell {
+    background: rgba(238, 228, 218, 0.35);
+    border-radius: 6px;
+}
+
+.tile-container {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+}
+
+/* стили для плиток (потом) */
+/* .tile {
+
+} */
+
+/* мобильные кнопки */
+.mobile-controls {
+    display: none; /* скрыты на десктопе */
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.move-row {
+    display: flex;
+    gap: 20px;
+}
+
+.move-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    background: #bbada0;
+    color: white;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.move-btn:active {
+    background: #9f8b77;
+}
+
+/* модальные окна */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: #faf8ef;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+.leaderboard-modal {
+    max-width: 500px;
+}
+
+.modal h2 {
+    color: #776e65;
+    margin-bottom: 20px;
+}
+
+.modal p {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+#player-name {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #bbada0;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.modal-btn {
+    background: #8f7a66;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin: 5px;
+}
+
+.modal-btn:hover {
+    background: #9f8b77;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+#leaderboard-table th,
+#leaderboard-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #bbada0;
+}
+
+#leaderboard-table th {
+    background: #bbada0;
+    color: white;
+}
+
+#leaderboard-table td {
+    color: #776e65;
+}
+
+/* адаптивность */
+@media (max-width: 768px) {
+    h1 { font-size: 36px; }
+    .score-container { padding: 8px 16px; }
+    .score { font-size: 20px; }
+}
+
+@media (max-width: 480px) {
+    .mobile-controls {
+        display: flex; /* показываем кнопки на мобильных */
+    }
+    .game-board {
+        padding: 10px;
+    }
+    .grid-container {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        gap: 10px;
+    }
+    .tile-container {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+    }
+    .move-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+    }
+}
