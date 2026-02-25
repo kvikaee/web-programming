@@ -2,11 +2,29 @@
 let board = [];
 let score = 0;
 let history = []; // для undo (пока не используется)
-let gameOver = false; // пока не используется
+let gameOver = false;
 
 const boardSize = 4;
 const tileContainer = document.getElementById('tile-container');
 const scoreElement = document.getElementById('score');
+const gameOverModal = document.getElementById('game-over-modal');
+const finalScoreSpan = document.getElementById('final-score');
+const playerNameInput = document.getElementById('player-name');
+const nameInputGroup = document.getElementById('name-input-group');
+const gameOverMessage = document.getElementById('game-over-message');
+const leaderboardModal = document.getElementById('leaderboard-modal');
+const leaderboardBody = document.getElementById('leaderboard-body');
+const mobileControls = document.getElementById('mobile-controls');
+
+// LocalStorage для лидерборда
+function loadLeaderboard() {
+    const saved = localStorage.getItem('leaderboard2048');
+    return saved ? JSON.parse(saved) : [];
+}
+
+function saveLeaderboard(leaderboard) {
+    localStorage.setItem('leaderboard2048', JSON.stringify(leaderboard));
+}
 
 // логика игры
 function startNewGame() {
@@ -18,6 +36,7 @@ function startNewGame() {
     addRandomTile();
     if (Math.random() < 0.5) addRandomTile();
     renderBoard();
+    hideGameOverModal();
 }
 
 function addRandomTile() {
@@ -29,14 +48,14 @@ function addRandomTile() {
     }
     if (empty.length === 0) return false;
     const { r, c } = empty[Math.floor(Math.random() * empty.length)];
-    board[r][c] = Math.random() < 0.9 ? 2 : 4;
+    board[r][c] = Math.random() < 0.9 ? 2 : 4; // 90% - 2, 10% - 4
     return true;
 }
 
 function move(direction) {
     if (gameOver) return false;
 
-    // сохраняем состояние для undo (пока не используем)
+    // сохраняем состояние для undo (пока не используем, но сохраняем)
     history.push({
         board: board.map(row => [...row]),
         score
@@ -45,7 +64,9 @@ function move(direction) {
     let moved = false;
     let addedScore = 0;
 
+    // вспомогательная функция обработки линии (массива из 4 элементов)
     function processLine(line) {
+        // убираем нули
         const filtered = line.filter(v => v !== 0);
         const newLine = [];
         let i = 0;
@@ -59,10 +80,12 @@ function move(direction) {
                 i++;
             }
         }
+        // дополняем нулями до размера 4
         while (newLine.length < boardSize) newLine.push(0);
         return newLine;
     }
 
+    // обработка каждого направления
     if (direction === 'left') {
         for (let r = 0; r < boardSize; r++) {
             const original = board[r].slice();
@@ -114,6 +137,12 @@ function move(direction) {
         // с вероятностью 50% добавляем вторую
         if (Math.random() < 0.5) addRandomTile();
         renderBoard();
+
+        // Проверяем, не закончилась ли игра
+        if (isGameOver()) {
+            gameOver = true;
+            showGameOverModal();
+        }
     } else {
         // если ход не удался, убираем из истории
         history.pop();
@@ -121,11 +150,35 @@ function move(direction) {
     return moved;
 }
 
+function isGameOver() {
+    // проверка на пустые клетки
+    for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize; c++) {
+            if (board[r][c] === 0) return false;
+        }
+    }
+    // проверка на возможность слияния по горизонтали
+    for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize - 1; c++) {
+            if (board[r][c] === board[r][c + 1]) return false;
+        }
+    }
+    // проверка по вертикали
+    for (let c = 0; c < boardSize; c++) {
+        for (let r = 0; r < boardSize - 1; r++) {
+            if (board[r][c] === board[r + 1][c]) return false;
+        }
+    }
+    return true;
+}
+
 function renderBoard() {
+    // очищаем контейнер плиток
     tileContainer.innerHTML = '';
 
+    // Вычисляем размер ячейки с учётом отступов
     const cellSize = tileContainer.clientWidth / boardSize;
-    const gap = 15; // должно соответствовать CSS
+    const gap = 15; // должно совпадать со значением в CSS
 
     for (let r = 0; r < boardSize; r++) {
         for (let c = 0; c < boardSize; c++) {
@@ -157,6 +210,75 @@ function createTile(row, col, value) {
     tileContainer.appendChild(tile);
 }
 
+// модальные окна
+function showGameOverModal() {
+    finalScoreSpan.textContent = score;
+    gameOverMessage.textContent = `Ваш счёт: ${score}`;
+    nameInputGroup.style.display = 'flex';
+    playerNameInput.value = '';
+    gameOverModal.style.display = 'flex';
+    mobileControls.style.display = 'none'; // скрываем мобильные кнопки
+}
+
+function hideGameOverModal() {
+    gameOverModal.style.display = 'none';
+    if (window.innerWidth <= 480) {
+        mobileControls.style.display = 'flex';
+    }
+}
+
+function showLeaderboardModal() {
+    updateLeaderboardTable();
+    leaderboardModal.style.display = 'flex';
+    mobileControls.style.display = 'none';
+}
+
+function hideLeaderboardModal() {
+    leaderboardModal.style.display = 'none';
+    if (window.innerWidth <= 480 && !gameOver) {
+        mobileControls.style.display = 'flex';
+    }
+}
+
+function updateLeaderboardTable() {
+    const leaderboard = loadLeaderboard();
+    // сортируем по убыванию счёта и берём топ-10
+    const top10 = leaderboard.sort((a, b) => b.score - a.score).slice(0, 10);
+    leaderboardBody.innerHTML = '';
+    top10.forEach(entry => {
+        const row = document.createElement('tr');
+        const nameCell = document.createElement('td');
+        nameCell.textContent = entry.name;
+        const scoreCell = document.createElement('td');
+        scoreCell.textContent = entry.score;
+        const dateCell = document.createElement('td');
+        dateCell.textContent = new Date(entry.date).toLocaleDateString();
+        row.appendChild(nameCell);
+        row.appendChild(scoreCell);
+        row.appendChild(dateCell);
+        leaderboardBody.appendChild(row);
+    });
+}
+
+function saveScore() {
+    const name = playerNameInput.value.trim();
+    if (!name) {
+        alert('Введите имя');
+        return;
+    }
+    const leaderboard = loadLeaderboard();
+    leaderboard.push({
+        name,
+        score,
+        date: new Date().toISOString()
+    });
+    saveLeaderboard(leaderboard);
+
+    // меняем сообщение и скрываем инпут
+    nameInputGroup.style.display = 'none';
+    gameOverMessage.textContent = 'Ваш рекорд сохранен!';
+}
+
 // обработчики событий
 document.addEventListener('keydown', (e) => {
     if (gameOver) return;
@@ -184,17 +306,58 @@ document.getElementById('new-game').addEventListener('click', () => {
 
 // кнопка "Отмена" пока не работает
 document.getElementById('undo').addEventListener('click', () => {
-    // будет позже
     alert('Отмена пока не реализована');
 });
 
-// кнопка "Лидеры" пока не работает
+// кнопка "Лидеры"
 document.getElementById('show-leaderboard').addEventListener('click', () => {
-    alert('Таблица лидеров будет позже');
+    showLeaderboardModal();
 });
 
+// закрытие модалки лидеров
+document.getElementById('close-leaderboard').addEventListener('click', () => {
+    hideLeaderboardModal();
+});
+
+// кнопка "Начать заново" в модалке окончания
+document.getElementById('restart-from-modal').addEventListener('click', () => {
+    startNewGame();
+    hideGameOverModal();
+});
+
+// кнопка "Сохранить" в модалке окончания
+document.getElementById('save-score').addEventListener('click', () => {
+    saveScore();
+});
+
+// кнопка "Закрыть" в модалке окончания
+document.getElementById('close-modal').addEventListener('click', () => {
+    hideGameOverModal();
+});
+
+// закрытие модалок по клику на фон
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            if (overlay.id === 'game-over-modal') hideGameOverModal();
+            else if (overlay.id === 'leaderboard-modal') hideLeaderboardModal();
+        }
+    });
+});
+
+// при изменении размера окна перерисовываем плитки и корректируем видимость мобильных кнопок
 window.addEventListener('resize', () => {
     renderBoard();
+    if (window.innerWidth > 480) {
+        mobileControls.style.display = 'none';
+    } else {
+        if (!gameOver && getComputedStyle(gameOverModal).display === 'none' && getComputedStyle(leaderboardModal).display === 'none') {
+            mobileControls.style.display = 'flex';
+        } else {
+            mobileControls.style.display = 'none';
+        }
+    }
 });
 
+// запуск игры
 startNewGame();
