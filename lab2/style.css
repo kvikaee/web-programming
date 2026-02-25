@@ -208,7 +208,51 @@ body {
     background: #9e8b78;
 }
 
-/* ----- Адаптивность (для мобильных устройств) ----- */
+/* чекбокс */
+
+.task-item input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 26px;
+    height: 26px;
+    border: 2px solid #d9c5b3;
+    border-radius: 6px;
+    background-color: #fff9f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.task-item input[type="checkbox"]:hover {
+    border-color: #b3a18d;
+    background-color: #f5e6d3;
+}
+
+.task-item input[type="checkbox"]:checked {
+    background-color: #a67b5b;
+    border-color: #8b6243;
+}
+
+.task-item input[type="checkbox"]:checked::after {
+    content: "✓";
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.task-item input[type="checkbox"]:focus-visible {
+    outline: 2px solid #a67b5b;
+    outline-offset: 2px;
+}
+
+
+/* адаптивность */
 @media (max-width: 600px) {
     .add-form,
     .controls {
