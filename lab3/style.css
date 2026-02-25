@@ -129,6 +129,15 @@ h1 {
 /* цвета для разных значений (пока только 2 и 4) */
 .tile[data-value="2"] { background: #eee4da; color: #776e65; }
 .tile[data-value="4"] { background: #ede0c8; color: #776e65; }
+.tile[data-value="8"] { background: #f2b179; color: white; }
+.tile[data-value="16"] { background: #f59563; color: white; }
+.tile[data-value="32"] { background: #f67c5f; color: white; }
+.tile[data-value="64"] { background: #f65e3b; color: white; }
+.tile[data-value="128"] { background: #edcf72; color: white; font-size: 28px; }
+.tile[data-value="256"] { background: #edcc61; color: white; font-size: 28px; }
+.tile[data-value="512"] { background: #edc850; color: white; font-size: 28px; }
+.tile[data-value="1024"] { background: #edc53f; color: white; font-size: 24px; }
+.tile[data-value="2048"] { background: #edc22e; color: white; font-size: 24px; }
 
 /* мобильные кнопки */
 .mobile-controls {
