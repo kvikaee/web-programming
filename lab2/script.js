@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // состояние приложения
     let tasks = []; // массив задач
 
-    // DOM-элементы (получим после создания)
+    // DOM-элементы
     let tasksContainer;
 
     // вспомогательные функции
@@ -17,11 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (saved) {
             tasks = JSON.parse(saved);
         } else {
-            tasks = []; // пустой массив, без демо-задач
+            tasks = [];
         }
     }
 
-    // создание DOM-структуры (добавляем ссылки на элементы)
+    // построение интерфейса
     function buildUI() {
         // заголовок
         const title = document.createElement('h1');
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // панель управления
         const controls = document.createElement('div');
         controls.className = 'controls';
-        
+
         // фильтр по статусу
         const filterSelect = document.createElement('select');
         ['all', 'active', 'completed'].forEach(value => {
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         controls.appendChild(filterSelect);
 
-        // поиск
+
         const searchInput = document.createElement('input');
         searchInput.type = 'text';
         searchInput.placeholder = 'Поиск по названию...';
@@ -93,25 +93,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const date = dateInput.value;
             if (!title || !date) return;
 
-            const newTask = {
-                id: Date.now(), // уникальный идентификатор
+            tasks.push({
+                id: Date.now(),
                 title,
                 date,
                 completed: false
-            };
-            tasks.push(newTask);
+            });
             saveTasks();
-            renderTasks(); // отрисовываем обновлённый список
-
-            // очищаем форму
+            renderTasks();
             titleInput.value = '';
             dateInput.value = new Date().toISOString().split('T')[0];
         });
     }
 
-    // функция отрисовки задач
+    // отрисовка списка задач
     function renderTasks() {
-        tasksContainer.innerHTML = ''; // очищаем контейнер
+        tasksContainer.innerHTML = '';
 
         if (tasks.length === 0) {
             const emptyMsg = document.createElement('p');
@@ -121,8 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         tasks.forEach(task => {
-            const taskElement = createTaskElement(task);
-            tasksContainer.appendChild(taskElement);
+            tasksContainer.appendChild(createTaskElement(task));
         });
     }
 
@@ -132,11 +128,15 @@ document.addEventListener('DOMContentLoaded', () => {
         item.className = `task-item ${task.completed ? 'completed' : ''}`;
         item.dataset.id = task.id;
 
-        // чекбокс для отметки выполнения
+        // чекбокс выполнения
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = task.completed;
-        // позже добавить обработчик
+        checkbox.addEventListener('change', () => {
+            task.completed = checkbox.checked;
+            saveTasks();
+            renderTasks();
+        });
 
         // информация о задаче
         const infoDiv = document.createElement('div');
@@ -156,11 +156,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const editBtn = document.createElement('button');
         editBtn.textContent = 'Ред.';
-        // позже добавим обработчик
+        editBtn.addEventListener('click', () => startEditTask(item, task));
 
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'Удалить';
-        // позже добавим обработчик
+        deleteBtn.addEventListener('click', () => {
+            tasks = tasks.filter(t => t.id !== task.id);
+            saveTasks();
+            renderTasks();
+        });
 
         actionsDiv.appendChild(editBtn);
         actionsDiv.appendChild(deleteBtn);
@@ -170,6 +174,60 @@ document.addEventListener('DOMContentLoaded', () => {
         item.appendChild(actionsDiv);
 
         return item;
+    }
+
+    // редактирование задачи
+    function startEditTask(taskElement, task) {
+        const originalId = task.id;
+
+        const editForm = document.createElement('form');
+        editForm.className = 'edit-form';
+
+        const titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.value = task.title;
+        titleInput.required = true;
+
+        const dateInput = document.createElement('input');
+        dateInput.type = 'date';
+        dateInput.value = task.date;
+        dateInput.required = true;
+
+        const saveBtn = document.createElement('button');
+        saveBtn.type = 'submit';
+        saveBtn.textContent = 'Сохранить';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.textContent = 'Отмена';
+
+        editForm.appendChild(titleInput);
+        editForm.appendChild(dateInput);
+        editForm.appendChild(saveBtn);
+        editForm.appendChild(cancelBtn);
+
+        // заменяем содержимое taskElement на форму
+        taskElement.innerHTML = '';
+        taskElement.appendChild(editForm);
+
+        editForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newTitle = titleInput.value.trim();
+            const newDate = dateInput.value;
+            if (newTitle && newDate) {
+                const foundTask = tasks.find(t => t.id === originalId);
+                if (foundTask) {
+                    foundTask.title = newTitle;
+                    foundTask.date = newDate;
+                    saveTasks();
+                }
+            }
+            renderTasks();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            renderTasks();
+        });
     }
 
     // инициализация

@@ -78,3 +78,47 @@ body {
     background: #c97c5d;
     color: white;
 }
+
+/* форма редактирования */
+.edit-form {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.edit-form input[type="text"],
+.edit-form input[type="date"] {
+    padding: 6px;
+    border: 1px solid #d9c5b3;
+    border-radius: 4px;
+    background: #fff9f0;
+}
+
+.edit-form input[type="text"] {
+    flex: 1;
+    min-width: 150px;
+}
+
+.edit-form button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #8b6b4d;
+    color: white;
+    transition: background 0.2s;
+}
+
+.edit-form button:hover {
+    background: #6b4f3a;
+}
+
+.edit-form button[type="button"] {
+    background: #b3a18d;
+    color: #2c1e12;
+}
+
+.edit-form button[type="button"]:hover {
+    background: #9e8b78;
+}
