@@ -1,0 +1,15 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f5efe7;
+}
+
+#app {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fffaf0;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
