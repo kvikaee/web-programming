@@ -11,3 +11,6 @@ https://nimble-flan-57b7b6.netlify.app/
 Код 2 работы находится в ветке lab2
 
 https://soft-rugelach-de54a2.netlify.app/
+
+
+### 3 лабораторная работа
