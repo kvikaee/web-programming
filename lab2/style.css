@@ -14,6 +14,74 @@ body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+/* форма добавления */
+.add-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.add-form input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px;
+    border: 1px solid #d9c5b3;
+    border-radius: 4px;
+    background: #fff9f0;
+}
+
+.add-form input[type="date"] {
+    padding: 8px;
+    border: 1px solid #d9c5b3;
+    border-radius: 4px;
+    background: #fff9f0;
+}
+
+.add-form button {
+    padding: 8px 16px;
+    background: #8b6b4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-form button:hover {
+    background: #6b4f3a; 
+}
+
+/* панель управления */
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.controls select,
+.controls input[type="text"],
+.controls button {
+    padding: 8px;
+    border: 1px solid #d9c5b3;
+    border-radius: 4px;
+    background: #fff9f0;
+}
+
+.controls button {
+    background: #a67b5b;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.controls button:hover {
+    background: #8b6243;
+}
+
 /* контейнер задач */
 .tasks-container {
     display: flex;
@@ -31,6 +99,8 @@ body {
     border: 1px solid #d9c5b3;
     border-radius: 4px;
     background: #fef7e9;
+    cursor: grab;
+    transition: background 0.3s;
 }
 
 .task-item.completed {
@@ -41,6 +111,10 @@ body {
 .task-item.completed .task-title {
     text-decoration: line-through;
     color: #a68b74;
+}
+
+.task-item.dragging {
+    opacity: 0.5;
 }
 
 .task-info {
@@ -59,6 +133,7 @@ body {
     color: #8b7a6b;
 }
 
+/* кнопки действий */
 .task-actions {
     display: flex;
     gap: 5px;
@@ -69,14 +144,24 @@ body {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
 .task-actions button:first-child {
-    background: #e0b084;
+    background: #e0b084; 
 }
+
+.task-actions button:first-child:hover {
+    background: #cc9a6b;
+}
+
 .task-actions button:last-child {
     background: #c97c5d;
     color: white;
+}
+
+.task-actions button:last-child:hover {
+    background: #b56542;
 }
 
 /* форма редактирования */
@@ -121,4 +206,19 @@ body {
 
 .edit-form button[type="button"]:hover {
     background: #9e8b78;
+}
+
+/* ----- Адаптивность (для мобильных устройств) ----- */
+@media (max-width: 600px) {
+    .add-form,
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .task-item {
+        flex-wrap: wrap;
+    }
+    .task-actions {
+        margin-left: auto;
+    }
 }

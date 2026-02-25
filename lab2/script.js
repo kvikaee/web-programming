@@ -2,9 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('app');
 
     let tasks = [];
-    let dragSourceId = null; // для drag-and-drop
+    let filterStatus = 'all';
+    let searchQuery = '';
+    let sortOrder = 'asc';
+    let dragSourceId = null;
 
     let tasksContainer;
+    let filterSelect;
+    let searchInput;
+    let sortButton;
 
     function saveTasks() {
         localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -17,6 +23,23 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             tasks = [];
         }
+    }
+
+    // --- Фильтрация и сортировка ---
+    function getFilteredAndSortedTasks() {
+        let filtered = tasks.filter(task => {
+            if (filterStatus === 'active' && task.completed) return false;
+            if (filterStatus === 'completed' && !task.completed) return false;
+            if (searchQuery && !task.title.toLowerCase().includes(searchQuery)) return false;
+            return true;
+        });
+
+        filtered.sort((a, b) => {
+            if (sortOrder === 'asc') return a.date.localeCompare(b.date);
+            else return b.date.localeCompare(a.date);
+        });
+
+        return filtered;
     }
 
     // построение интерфейса
@@ -56,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         controls.className = 'controls';
 
         // фильтр по статусу
-        const filterSelect = document.createElement('select');
+        filterSelect = document.createElement('select');
         ['all', 'active', 'completed'].forEach(value => {
             const option = document.createElement('option');
             option.value = value;
@@ -65,13 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         controls.appendChild(filterSelect);
 
-
-        const searchInput = document.createElement('input');
+        // поиск
+        searchInput = document.createElement('input');
         searchInput.type = 'text';
         searchInput.placeholder = 'Поиск по названию...';
         controls.appendChild(searchInput);
-        
-        const sortButton = document.createElement('button');
+
+        // кнопка сортировки
+        sortButton = document.createElement('button');
         sortButton.textContent = 'Сортировать по дате (возр.)';
         controls.appendChild(sortButton);
 
@@ -83,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tasksContainer.className = 'tasks-container';
         app.appendChild(tasksContainer);
 
-        // обработчик добавления задачи
+        // обработчики
         addForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const title = titleInput.value.trim();
@@ -101,32 +125,48 @@ document.addEventListener('DOMContentLoaded', () => {
             titleInput.value = '';
             dateInput.value = new Date().toISOString().split('T')[0];
         });
+
+        filterSelect.addEventListener('change', () => {
+            filterStatus = filterSelect.value;
+            renderTasks();
+        });
+
+        searchInput.addEventListener('input', () => {
+            searchQuery = searchInput.value.toLowerCase();
+            renderTasks();
+        });
+
+        sortButton.addEventListener('click', () => {
+            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            sortButton.textContent = sortOrder === 'asc' ? 'Сортировать по дате (возр.)' : 'Сортировать по дате (убыв.)';
+            renderTasks();
+        });
     }
 
     // отрисовка списка задач
     function renderTasks() {
         tasksContainer.innerHTML = '';
+        const tasksToShow = getFilteredAndSortedTasks();
 
-        if (tasks.length === 0) {
+        if (tasksToShow.length === 0) {
             const emptyMsg = document.createElement('p');
             emptyMsg.textContent = 'Нет задач';
             tasksContainer.appendChild(emptyMsg);
             return;
         }
 
-        tasks.forEach(task => {
+        tasksToShow.forEach(task => {
             tasksContainer.appendChild(createTaskElement(task));
         });
     }
 
-    // создание DOM-элемента одной задачи
+    // создание элемента задачи
     function createTaskElement(task) {
         const item = document.createElement('div');
         item.className = `task-item ${task.completed ? 'completed' : ''}`;
         item.dataset.id = task.id;
-        item.draggable = true; // разрешаем перетаскивание
+        item.draggable = true;
 
-        // чекбокс выполнения
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = task.completed;
@@ -136,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderTasks();
         });
 
-        // информация о задаче
         const infoDiv = document.createElement('div');
         infoDiv.className = 'task-info';
         const titleSpan = document.createElement('span');
@@ -148,14 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
         infoDiv.appendChild(titleSpan);
         infoDiv.appendChild(dateSpan);
 
-        // кнопки действий
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'task-actions';
-
         const editBtn = document.createElement('button');
         editBtn.textContent = 'Ред.';
         editBtn.addEventListener('click', () => startEditTask(item, task));
-
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'Удалить';
         deleteBtn.addEventListener('click', () => {
@@ -163,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
             saveTasks();
             renderTasks();
         });
-
         actionsDiv.appendChild(editBtn);
         actionsDiv.appendChild(deleteBtn);
 
@@ -171,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         item.appendChild(infoDiv);
         item.appendChild(actionsDiv);
 
-        // Drag & Drop обработчики
+        // Drag & Drop
         item.addEventListener('dragstart', handleDragStart);
         item.addEventListener('dragover', handleDragOver);
         item.addEventListener('drop', handleDrop);
@@ -183,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // редактирование задачи
     function startEditTask(taskElement, task) {
         const originalId = task.id;
-
         const editForm = document.createElement('form');
         editForm.className = 'edit-form';
 
@@ -228,12 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
             renderTasks();
         });
 
-        cancelBtn.addEventListener('click', () => {
-            renderTasks();
-        });
+        cancelBtn.addEventListener('click', () => renderTasks());
     }
 
-    // Drag & Drop функции
+    // --- Drag & Drop ---
     function handleDragStart(e) {
         dragSourceId = e.target.closest('.task-item').dataset.id;
         e.dataTransfer.setData('text/plain', dragSourceId);
@@ -269,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dragSourceId = null;
     }
 
-    // инициализация
+    // --- Инициализация ---
     function init() {
         buildUI();
         loadTasks();
